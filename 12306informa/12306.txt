@@ -1,0 +1,17 @@
+https://kyfw.12306.cn/otn/leftTicket/queryO?leftTicketDTO.train_date=2018-03-27&leftTicketDTO.from_station=NCG&leftTicketDTO.to_station=WHN&purpose_codes=ADULT
+
+上面的网址就是查询余额所在的网址  
+中间的train_date from_station to_station 就是用户输入的相应信息   时间 出发站 到达站 同时在这个网站里面还有列车信息  比如说K433
+
+https://kyfw.12306.cn/otn/resources/js/framework/station_name.js?station_version=1.8955
+这个网址保存了所有的站名
+
+https://kyfw.12306.cn/otn/leftTicket/queryTicketPrice?train_no=650000K9210H&from_station_no=12&to_station_no=16&seat_types=1413&train_date=2018-03-25
+最后一个网址的话 是票价所在的网址   
+  比如说：   train_no k921(去掉后面的两位 以及字母前面的  剩下的就是当前的列车信息)  from_station_no  to_station_no  seat_types (1413 K omd D om9 G 目前查看到的三种列车) train_date 列车出发的日期 
+
+学习python 爬取火车票余额信息的小程序  到时候还需要了解一下  json  模块哦
+
+
+第一次尝试的话   就先把基本的信息查询出来（不含票价的那种版本）
+
