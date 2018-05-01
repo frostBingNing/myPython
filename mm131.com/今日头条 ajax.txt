@@ -1,0 +1,160 @@
+今日头条
+
+
+还有一种是  keyword  输入关键词（模仿用户交互界面的功能）
+offset: 0
+format: json
+keyword: xxxxx
+autoload: true
+count: 20
+cur_tab: 1
+from: search_tab
+可以发现  只有keyword 这个参数是可以改变的  其他都是固定的，所以这种爬取是比较简单的。。
+只要一次
+
+-----https://www.toutiao.com/api/pc/feed/?category=news_tech&utm_source=toutiao&widen=1&max_behot_time=0&max_behot_time_tmp=0&tadrequire=true&as=A1E52ADE1821D55&cp=5AE8014DE5E57E1&_signature=K9okxwAAcTh87WycryVIGSvaJN
+   今日头条里面各种自动推荐的新闻合集  都在上面url里面  但是里面的有些参数  是随机给出的 
+   这个随机产生函数暂且没有找到  。。。。 无从下手了
+   不过原理都是遮掩的
+
+  steps:   1 ---- start url --->https://www.toutiao.com/ch/xxxxxxx/
+           2 ---- 然后在 f12 管理员工具里面有个 xhr（xmlhttprequest  参数列表）
+           3 ----  找到起始的那个url-- 就是上面的那个整合url
+           4 ----  获得里面的 json 格式的数据 就是目的数据
+           5 ----  如果得到了 as: A125CACE0851E13 cp: 5AE8819E91B33E1 _signature: KwdrMAAAcfZ8MCNr-fUuaCsHay 三者的随机产生方法 就可以在一个界面无限（反正很多次）读取下去
+
+
+-------
+city集合
+Request URL: https://www.toutiao.com/stream/widget/local_weather/city/
+
+
+
+-------
+所有的轮播图
+https://www.toutiao.com/api/pc/focus/
+
+
+
+--------
+今日头条所有的评论起源连接 见上面
+https://www.toutiao.com/api/pc/feed/?min_behot_time=0         &category=__all__&utm_source=toutiao&widen=1&tadrequire=true&as=A1757AEE4705FE3&cp=5AE7958F7E134E1&_signature=Hq-gnxAVRE1JmOjExSf86R6voI
+https://www.toutiao.com/api/pc/feed/?max_behot_time=1525112580&category=__all__&utm_source=toutiao&widen=1&tadrequire=true&as=A1757AEE4705FE3&cp=5AE7958F7E134E1&_signature=Hq-gnxAVRE1JmOjExScWzR6voI
+https://www.toutiao.com/api/pc/feed/?max_behot_time=1525112831&category=__all__&utm_source=toutiao&widen=1&tadrequire=true&as=A1153AEEB7D5FE4&cp=5AE7F50FAE14AE1&_signature=Hq-gnxAVRE1JmOjExSf.Qh6voI
+min_behot_time: 1525112728
+as: A1A50A0E678608F
+cp: 5AE7669088BF2E1
+_signature: Hq-gnxAVRE1JmOjExSdCxx6voI  data里面的参数是每张网页自动生成相应的  as cp ——signature 。。。。。 what fuck
+	
+-----   关于 urllib.parserimport urlencode
+from urllib.parser  import urlencode
+encode  change data to url   
+
+category: news_hot
+utm_source: toutiao
+widen: 1
+max_behot_time: 0
+max_behot_time_tmp: 0
+tadrequire: true
+as: A1855AEE1871BE5
+cp: 5AE8917B4EF5DE1
+https://www.toutiao.com/api/pc/feed/?（category=news_hot&utm_source=toutiao&widen=1&max_behot_time=xxxxx&max_behot_time_tmp=xxxxx&tadrequire=true&as=A1855AEE1871BE5&cp=5AE8917B4EF5DE1&_signature=NSmutQAAb8hiHubu1ILMATUprq）
+
+
+-------  下面是关于今日头条里面具体分栏  --街拍 --
+
+
+关于街拍的评论  在xhr ？group
+关于街拍的原始图片  在doc  里面的 gallery: JSON.parse  因为不在html里面 用正则
+
+    // sentry
+    window.Raven && Raven.config('//key@m.toutiao.com/log/sentry/v2/96', {
+      whitelistUrls: [/pstatp\.com/],
+      sampleRate: 1,
+      shouldSendCallback: function(data) {
+        var ua = navigator && navigator.userAgent;
+        var isDeviceOK = !/Mobile|Linux/i.test(navigator.userAgent);
+        if (data.message && data.message.indexOf('p.tanx.com') !== -1) {
+          return false;
+        }
+        return isDeviceOK;
+      },
+      tags: {
+        bid: 'toutiao_pc',
+        pid: 'image_detail_new'
+      },
+      autoBreadcrumbs: {
+        'xhr': false,
+        'console': true,
+        'dom': true,
+        'location': true
+      }
+    }).install();
+  })(window);</script><script>var PAGE_SWITCH = {"adScriptQihu":false,"adScriptTB":true,"anti_spam":false,"migScriptUrl":"//s3a.pstatp.com/toutiao/picc_mig/dist/img.min.js","nineteen":"","picVersion":"20180412_01","qihuAdShow":false,"taVersion":"20171221_1","ttAdShow":true};</script><script>var BASE_DATA = {
+    headerInfo: {
+      id: 0,
+      isPgc: false,
+      userName: '',
+      avatarUrl: '',
+      isHomePage: false,
+      chineseTag: '图片',
+      crumbTag: 'ch/news_image/',
+      hasBar: true
+    },
+    mediaInfo: {
+      name: '时尚人像摄影',
+      avatarUrl: '//p1.pstatp.com/large/1dcb001218d0ca213b78',
+      openUrl: '/c/user/54521813438/',
+      user_id: '54521813438',
+      like: false
+    },
+    userInfo: {
+      id: 0,
+      name: '',
+      avatarUrl: '',
+      isPgc: false,
+      isOwner: false
+    },
+    commentInfo: {
+      group_id: '6444359581934141710',
+      item_id: '6444361878960341517',
+      comments_count: 3,
+      ban_comment: 0
+    }
+  }
+
+  BASE_DATA.galleryInfo = {
+    title: '人像摄影：街拍，又见街拍',
+    isOriginal: false,
+    mediaInfo: BASE_DATA.mediaInfo,
+    gallery: JSON.parse("{\"count\":8,\"sub_images\":[{\"url\":\"http:\\/\\/p1.pstatp.com\\/origin\\/2ed500045dd991b3fd5c\",\"width\":1920,\"url_list\":[{\"url\":\"http:\\/\\/p1.pstatp.com\\/origin\\/2ed500045dd991b3fd5c\"},{\"url\":\"http:\\/\\/pb3.pstatp.com\\/origin\\/2ed500045dd991b3fd5c\"},{\"url\":\"http:\\/\\/pb9.pstatp.com\\/origin\\/2ed500045dd991b3fd5c\"}],\"uri\":\"origin\\/2ed500045dd991b3fd5c\",\"height\":1080},{\"url\":\"http:\\/\\/p1.pstatp.com\\/origin\\/2ed500045ddae32051fd\",\"width\":1920,\"url_list\":[{\"url\":\"http:\\/\\/p1.pstatp.com\\/origin\\/2ed500045ddae32051fd\"},{\"url\":\"http:\\/\\/pb3.pstatp.com\\/origin\\/2ed500045ddae32051fd\"},{\"url\":\"http:\\/\\/pb9.pstatp.com\\/origin\\/2ed500045ddae32051fd\"}],\"uri\":\"origin\\/2ed500045ddae32051fd\",\"height\":1080},{\"url\":\"http:\\/\\/p3.pstatp.com\\/origin\\/2ed60002d8d585f0612c\",\"width\":1920,\"url_list\":[{\"url\":\"http:\\/\\/p3.pstatp.com\\/origin\\/2ed60002d8d585f0612c\"},{\"url\":\"http:\\/\\/pb9.pstatp.com\\/origin\\/2ed60002d8d585f0612c\"},{\"url\":\"http:\\/\\/pb1.pstatp.com\\/origin\\/2ed60002d8d585f0612c\"}],\"uri\":\"origin\\/2ed60002d8d585f0612c\",\"height\":1200},{\"url\":\"http:\\/\\/p3.pstatp.com\\/origin\\/2ed60002d8dcec462dfa\",\"width\":1920,\"url_list\":[{\"url\":\"http:\\/\\/p3.pstatp.com\\/origin\\/2ed60002d8dcec462dfa\"},{\"url\":\"http:\\/\\/pb9.pstatp.com\\/origin\\/2ed60002d8dcec462dfa\"},{\"url\":\"http:\\/\\/pb1.pstatp.com\\/origin\\/2ed60002d8dcec462dfa\"}],\"uri\":\"origin\\/2ed60002d8dcec462dfa\",\"height\":1200},{\"url\":\"http:\\/\\/p1.pstatp.com\\/origin\\/2ed500045dcb2072c4ec\",\"width\":1920,\"url_list\":[{\"url\":\"http:\\/\\/p1.pstatp.com\\/origin\\/2ed500045dcb2072c4ec\"},{\"url\":\"http:\\/\\/pb3.pstatp.com\\/origin\\/2ed500045dcb2072c4ec\"},{\"url\":\"http:\\/\\/pb9.pstatp.com\\/origin\\/2ed500045dcb2072c4ec\"}],\"uri\":\"origin\\/2ed500045dcb2072c4ec\",\"height\":1200},{\"url\":\"http:\\/\\/p3.pstatp.com\\/origin\\/2ed70002da5f65408cbb\",\"width\":1920,\"url_list\":[{\"url\":\"http:\\/\\/p3.pstatp.com\\/origin\\/2ed70002da5f65408cbb\"},{\"url\":\"http:\\/\\/pb9.pstatp.com\\/origin\\/2ed70002da5f65408cbb\"},{\"url\":\"http:\\/\\/pb1.pstatp.com\\/origin\\/2ed70002da5f65408cbb\"}],\"uri\":\"origin\\/2ed70002da5f65408cbb\",\"height\":1200},{\"url\":\"http:\\/\\/p3.pstatp.com\\/origin\\/2edd00052bf3c5ee0269\",\"width\":1920,\"url_list\":[{\"url\":\"http:\\/\\/p3.pstatp.com\\/origin\\/2edd00052bf3c5ee0269\"},{\"url\":\"http:\\/\\/pb9.pstatp.com\\/origin\\/2edd00052bf3c5ee0269\"},{\"url\":\"http:\\/\\/pb1.pstatp.com\\/origin\\/2edd00052bf3c5ee0269\"}],\"uri\":\"origin\\/2edd00052bf3c5ee0269\",\"height\":1200},{\"url\":\"http:\\/\\/p3.pstatp.com\\/origin\\/2ed70002da645b8c6647\",\"width\":1920,\"url_list\":[{\"url\":\"http:\\/\\/p3.pstatp.com\\/origin\\/2ed70002da645b8c6647\"},{\"url\":\"http:\\/\\/pb9.pstatp.com\\/origin\\/2ed70002da645b8c6647\"},{\"url\":\"http:\\/\\/pb1.pstatp.com\\/origin\\/2ed70002da645b8c6647\"}],\"uri\":\"origin\\/2ed70002da645b8c6647\",\"height\":1200}],\"max_img_width\":1920,\"labels\":[\"\\u6444\\u5f71\",\"\\u4eba\\u7269\\u6444\\u5f71\"],\"sub_abstracts\":[\"\\u4eba\\u50cf\\u6444\\u5f71\\uff1a\\u6700\\u662f\\u90a3\\u4e00\\u4f4e\\u5934\\u7684\\u6e29\\u67d4 \\u4e0d\\u80dc\\u51c9\\u98ce\\u7684\\u5a07\\u7f9e\",\" \",\" \",\" \",\" \",\" \",\" \",\" \"],\"sub_titles\":[\"\\u4eba\\u50cf\\u6444\\u5f71\\uff1a\\u8857\\u62cd\\uff0c\\u53c8\\u89c1\\u8857\\u62cd\",\"\\u4eba\\u50cf\\u6444\\u5f71\\uff1a\\u8857\\u62cd\\uff0c\\u53c8\\u89c1\\u8857\\u62cd\",\"\\u4eba\\u50cf\\u6444\\u5f71\\uff1a\\u8857\\u62cd\\uff0c\\u53c8\\u89c1\\u8857\\u62cd\",\"\\u4eba\\u50cf\\u6444\\u5f71\\uff1a\\u8857\\u62cd\\uff0c\\u53c8\\u89c1\\u8857\\u62cd\",\"\\u4eba\\u50cf\\u6444\\u5f71\\uff1a\\u8857\\u62cd\\uff0c\\u53c8\\u89c1\\u8857\\u62cd\",\"\\u4eba\\u50cf\\u6444\\u5f71\\uff1a\\u8857\\u62cd\\uff0c\\u53c8\\u89c1\\u8857\\u62cd\",\"\\u4eba\\u50cf\\u6444\\u5f71\\uff1a\\u8857\\u62cd\\uff0c\\u53c8\\u89c1\\u8857\\u62cd\",\"\\u4eba\\u50cf\\u6444\\u5f71\\uff1a\\u8857\\u62cd\\uff0c\\u53c8\\u89c1\\u8857\\u62cd\"]}"),
+    siblingList: [{"comments_count":11247,"media_avatar_url":"//p1.pstatp.com/large/2b600255e0238647797","is_feed_ad":false,"is_diversion_page":false,"title":"贵阳女子被前男友纠缠，弟弟看不下去出头，结果……","single_mode":true,"gallary_image_count":0,"middle_mode":false,"has_video":true,"video_duration_str":"03:40","source_url":"https://www.toutiao.com/group/6546435141319787012/","source":"贵州5频道","more_mode":null,"article_genre":"video","has_gallery":false,"video_play_count":3420270,"image_url":"//p3.pstatp.com/list/300x170/pgc-image/15242106244402ea749ad36","group_id":"6546435141319787012","is_related":true,"media_url":"/c/user/6006410242/"},{"comments_count":0,"media_avatar_url":"//p1.pstatp.com/large/6cb0003068f5da06941","is_feed_ad":false,"is_diversion_page":false,"title":"场面一片欢呼！金正恩夫人也来了！韩朝领导人签署《板门店宣言》","single_mode":true,"gallary_image_count":0,"middle_mode":false,"has_video":true,"video_duration_str":"06:44","source_url":"https://www.toutiao.com/group/6549072175280685575/","source":"看看新闻","more_mode":null,"article_genre":"video","has_gallery":false,"video_play_count":2743297,"image_url":"//p3.pstatp.com/list/300x170/pgc-image/1524824667984470ad41257","group_id":"6549072175280685575","is_related":true,"media_url":"/c/user/5839829632/"},{"comments_count":12742,"media_avatar_url":"//p3.pstatp.com/large/41200033204317c2828","is_feed_ad":false,"is_diversion_page":false,"title":"刚刚，国防部发出最严警告：搞“台独”死路一条！","single_mode":true,"gallary_image_count":0,"middle_mode":false,"has_video":true,"video_duration_str":"04:08","source_url":"https://www.toutiao.com/group/6548807036841230856/","source":"第一军情","more_mode":null,"article_genre":"video","has_gallery":false,"video_play_count":2344497,"image_url":"//p3.pstatp.com/list/300x170/pgc-image/1524762881962cda2676249","group_id":"6548807036841230856","is_related":true,"media_url":"/c/user/6264649967/"},{"comments_count":762,"media_avatar_url":"//p9.pstatp.com/large/11323/4448915623","is_feed_ad":false,"is_diversion_page":false,"title":"刺猬妈妈生小刺猬，到底有多疼？看完感叹母爱伟大","single_mode":true,"gallary_image_count":0,"middle_mode":false,"has_video":true,"video_duration_str":"01:42","source_url":"https://www.toutiao.com/group/6548206896652747278/","source":"找靓机二手机","more_mode":null,"article_genre":"video","has_gallery":false,"video_play_count":2328707,"image_url":"//p9.pstatp.com/list/300x170/pgc-image/1524622781102ccec6b7dce","group_id":"6548206896652747278","is_related":true,"media_url":"/c/user/5856627767/"},{"comments_count":2647,"media_avatar_url":"//p1.pstatp.com/large/bc20000b91968707dab","is_feed_ad":false,"is_diversion_page":false,"title":"大案：天上掉下“白富美”？为什么他们吃了“哑巴亏”也不报警","single_mode":true,"gallary_image_count":0,"middle_mode":false,"has_video":true,"video_duration_str":"15:36","source_url":"https://www.toutiao.com/group/6547913375127437837/","source":"央视网新闻","more_mode":null,"article_genre":"video","has_gallery":false,"video_play_count":2692063,"image_url":"//p3.pstatp.com/list/300x170/pgc-image/15245547538640a3cfb7a2b","group_id":"6547913375127437837","is_related":true,"media_url":"/c/user/50025817786/"},{"comments_count":6040,"media_avatar_url":"//p3.pstatp.com/large/4343000020ce32bc0a03","is_feed_ad":false,"is_diversion_page":false,"title":"方便面最方便的做法，长这么大还是第一次见，比买的都好吃","single_mode":true,"gallary_image_count":0,"middle_mode":false,"has_video":true,"video_duration_str":"02:01","source_url":"https://www.toutiao.com/group/6543857137724949000/","source":"洋芋团团","more_mode":null,"article_genre":"video","has_gallery":false,"video_play_count":1996304,"image_url":"//p1.pstatp.com/list/300x170/pgc-image/152361031841552fd7836e8","group_id":"6543857137724949000","is_related":true,"media_url":"/c/user/58729311913/"},{"comments_count":24845,"media_avatar_url":"//p4.pstatp.com/large/4e7a0002e95630bb5b15","is_feed_ad":false,"is_diversion_page":false,"title":"令人窒息！男子强拽同楼层女子进屋 强奸未遂已刑拘","single_mode":true,"gallary_image_count":0,"middle_mode":false,"has_video":true,"video_duration_str":"00:58","source_url":"https://www.toutiao.com/group/6548564524352406019/","source":"法制晚报看法新闻","more_mode":null,"article_genre":"video","has_gallery":false,"video_play_count":3902587,"image_url":"//p3.pstatp.com/list/300x170/pgc-image/1524706393015014049bb1c","group_id":"6548564524352406019","is_related":true,"media_url":"/c/user/5786562032/"},{"comments_count":299,"media_avatar_url":"//p1.pstatp.com/large/bc20000b91968707dab","is_feed_ad":false,"is_diversion_page":false,"title":"中国海军航母编队连续跨海区组织实兵对抗训练","single_mode":true,"gallary_image_count":0,"middle_mode":false,"has_video":true,"video_duration_str":"02:54","source_url":"https://www.toutiao.com/group/6547855534706393607/","source":"央视网新闻","more_mode":null,"article_genre":"video","has_gallery":false,"video_play_count":2903359,"image_url":"//p1.pstatp.com/list/300x170/pgc-image/1524629354953ec2431c0a2","group_id":"6547855534706393607","is_related":true,"media_url":"/c/user/50025817786/"},{"comments_count":4040,"media_avatar_url":"//p2.pstatp.com/large/6ee00005109479d1c3de","is_feed_ad":false,"is_diversion_page":false,"title":"美女相亲碰见铁公鸡，一听不用结账就狂点餐，美女用这招整治真绝","single_mode":true,"gallary_image_count":0,"middle_mode":false,"has_video":true,"video_duration_str":"03:49","source_url":"https://www.toutiao.com/group/6548285387087806990/","source":"热门影视快车","more_mode":null,"article_genre":"video","has_gallery":false,"video_play_count":3344520,"image_url":"//p3.pstatp.com/list/300x170/pgc-image/1524648014167d9a65fd938","group_id":"6548285387087806990","is_related":true,"media_url":"/c/user/65018508454/"},{"comments_count":925,"media_avatar_url":"//p1.pstatp.com/large/ef500006585cd67a762","is_feed_ad":false,"is_diversion_page":false,"title":"床单沾上血渍怎么办？教你个清洗小妙招，轻轻松松洗干净","single_mode":true,"gallary_image_count":0,"middle_mode":false,"has_video":true,"video_duration_str":"02:42","source_url":"https://www.toutiao.com/group/6545273901763527181/","source":"比克大魔王","more_mode":null,"article_genre":"video","has_gallery":false,"video_play_count":2657392,"image_url":"//p3.pstatp.com/list/300x170/pgc-image/15239401325986a25c37dfd","group_id":"6545273901763527181","is_related":true,"media_url":"/c/user/22225757776/"},{"comments_count":446,"media_avatar_url":"//p7.pstatp.com/large/18a3000efa5a7c594098","is_feed_ad":false,"is_diversion_page":false,"title":"四川方言：搞笑动物配音，小狗成精要护食惹怒主人，笑的肚儿痛！","single_mode":true,"gallary_image_count":0,"middle_mode":false,"has_video":true,"video_duration_str":"01:51","source_url":"https://www.toutiao.com/group/6539776555965481480/","source":"金花show","more_mode":null,"article_genre":"video","has_gallery":false,"video_play_count":1791136,"image_url":"//p3.pstatp.com/list/300x170/pgc-image/15226594797829d9041e7f8","group_id":"6539776555965481480","is_related":true,"media_url":"/c/user/52033518791/"},{"comments_count":2965,"media_avatar_url":"//p1.pstatp.com/large/2561/6228250395","is_feed_ad":false,"is_diversion_page":false,"title":"老公鬼混找情人，妻子发现要离婚，没想到婆婆却把儿子赶走？","single_mode":true,"gallary_image_count":0,"middle_mode":false,"has_video":true,"video_duration_str":"03:46","source_url":"https://www.toutiao.com/group/6545691689191735822/","source":"郑云工作室","more_mode":null,"article_genre":"video","has_gallery":false,"video_play_count":1819637,"image_url":"//p3.pstatp.com/list/300x170/pgc-image/15240374620129786e12e66","group_id":"6545691689191735822","is_related":true,"media_url":"/c/user/4118172283/"},{"comments_count":19877,"media_avatar_url":"//p2.pstatp.com/large/4d0000c63c363758fb","is_feed_ad":false,"is_diversion_page":false,"title":"女司机一个错误动作 七车连环相撞","single_mode":true,"gallary_image_count":0,"middle_mode":false,"has_video":true,"video_duration_str":"02:24","source_url":"https://www.toutiao.com/group/6548343231531188739/","source":"荔枝网GDTV","more_mode":null,"article_genre":"video","has_gallery":false,"video_play_count":3404223,"image_url":"//p1.pstatp.com/list/300x170/7d720006b6a7a7af0837","group_id":"6548343231531188739","is_related":true,"media_url":"/c/user/5928846122/"},{"comments_count":828,"media_avatar_url":"//p3.pstatp.com/large/2bd60000a8f36c8433f0","is_feed_ad":false,"is_diversion_page":false,"title":"太原：“神秘”的一元纸币","single_mode":true,"gallary_image_count":0,"middle_mode":false,"has_video":true,"video_duration_str":"01:57","source_url":"https://www.toutiao.com/group/6541320123142111748/","source":"黄河电视台","more_mode":null,"article_genre":"video","has_gallery":false,"video_play_count":2663374,"image_url":"//p1.pstatp.com/list/300x170/781a00148f9c56834fb0","group_id":"6541320123142111748","is_related":true,"media_url":"/c/user/53025639093/"},{"comments_count":6947,"media_avatar_url":"//p8.pstatp.com/large/6c310002452160039605","is_feed_ad":false,"is_diversion_page":false,"title":"捡回小灰灰一个月了，从不会走路没睁眼到现在能跑能跳，变化好大","single_mode":true,"gallary_image_count":0,"middle_mode":false,"has_video":true,"video_duration_str":"02:15","source_url":"https://www.toutiao.com/group/6540458476336841224/","source":"小代的乡村生活","more_mode":null,"article_genre":"video","has_gallery":false,"video_play_count":1698798,"image_url":"//p3.pstatp.com/list/300x170/pgc-image/152282277017042eef7ea3a","group_id":"6540458476336841224","is_related":true,"media_url":"/c/user/83692436096/"},{"comments_count":185640,"media_avatar_url":"//p3.pstatp.com/large/412001a034afe4f8f61","is_feed_ad":false,"is_diversion_page":false,"title":"7岁男童公交车上遭暴击事件，真相全在这里（独家完整视频）","single_mode":true,"gallary_image_count":12,"middle_mode":false,"has_video":true,"video_duration_str":"02:58","source_url":"https://www.toutiao.com/group/6549479900791702019/","source":"重庆晚报新闻哥","more_mode":null,"article_genre":"video","has_gallery":false,"video_play_count":2817456,"image_url":"//p1.pstatp.com/list/300x170/pgc-image/15249195188648febf802a8","group_id":"6549479900791702019","is_related":true,"media_url":"/c/user/6610512132/"},{"comments_count":412,"media_avatar_url":"//p3.pstatp.com/large/53e400049dc00646c568","is_feed_ad":false,"is_diversion_page":false,"title":"媳妇用丈夫手机群发信息，结果回复亮了，这可把丈夫坑惨了！","single_mode":true,"gallary_image_count":0,"middle_mode":false,"has_video":true,"video_duration_str":"02:02","source_url":"https://www.toutiao.com/group/6543469533745644046/","source":"喷饭剧乐部","more_mode":null,"article_genre":"video","has_gallery":false,"video_play_count":2339824,"image_url":"//p1.pstatp.com/list/300x170/78af0005aaade036fbdb","group_id":"6543469533745644046","is_related":true,"media_url":"/c/user/77046406459/"},{"comments_count":2,"media_avatar_url":"//p3.pstatp.com/large/6ee500006a1b9c777420","is_feed_ad":false,"is_diversion_page":false,"title":"独家视频｜历史性握手！金正恩邀请文在寅跨越分界线进入朝方一侧","single_mode":true,"gallary_image_count":0,"middle_mode":false,"has_video":true,"video_duration_str":"01:39","source_url":"https://www.toutiao.com/group/6548935278499725838/","source":"央视新闻移动网","more_mode":null,"article_genre":"video","has_gallery":false,"video_play_count":3133531,"image_url":"//p3.pstatp.com/list/300x170/7e3b00067ddbc5ea92a3","group_id":"6548935278499725838","is_related":true,"media_url":"/c/user/96888584941/"},{"comments_count":690,"media_avatar_url":"//p6.pstatp.com/large/2c61000c12d98928a79f","is_feed_ad":false,"is_diversion_page":false,"title":"母亲终于同意儿子找儿媳了，儿子乐了，朝自家对门直接就是一嗓子","single_mode":true,"gallary_image_count":0,"middle_mode":false,"has_video":true,"video_duration_str":"01:42","source_url":"https://www.toutiao.com/group/6546065010357961220/","source":"酷哥撩热剧","more_mode":null,"article_genre":"video","has_gallery":false,"video_play_count":2456956,"image_url":"//p3.pstatp.com/list/300x170/pgc-image/152413252049717ae268e12","group_id":"6546065010357961220","is_related":true,"media_url":"/c/user/3721864352/"},{"comments_count":854,"media_avatar_url":"//p7.pstatp.com/large/355c0007be64bab5f38e","is_feed_ad":false,"is_diversion_page":false,"title":"出门在外都不容易，这首《天在下雨我在想你》写得太好了","single_mode":true,"gallary_image_count":0,"middle_mode":false,"has_video":true,"video_duration_str":"04:16","source_url":"https://www.toutiao.com/group/6542993943221502472/","source":"桂平光哥","more_mode":null,"article_genre":"video","has_gallery":false,"video_play_count":2696084,"image_url":"//p1.pstatp.com/list/300x170/pgc-image/1523409187793939ee045e2","group_id":"6542993943221502472","is_related":true,"media_url":"/c/user/55833654724/"}],
+    publish_time: '2017-07-19 14:15:24',
+    group_id: '6444359581934141710',
+    item_id: '6444361878960341517',
+    share_url: 'https://m.toutiao.com/group/6444359581934141710/',
+    abstract: ''.replace(/<br \/>/ig, ''),
+    repin: 0
+  }</script><script>var imgUrl = '/c/ehmtdqwf6vxqwz67dj0aojmcr3hpvundefinedijoc5yev3ts3em1iiu69r8krlq6kbc/'</script><script>tac='i)6a4rqemh1s!i#z4es"0,<8~z|\x7f@QGNCJF[\\^D\\KFYSk~^WSZhg,(lfi~ah`{md"inb|1d<,%Dscafgd"in,8[xtm}nLzNEGQMKAdGG^NTY\x1ckgd"inb<b|1d<g,&TboLr{m,(\x02)!jx-2n&vr$testxg,%@tug{mn ,%vrfkbm[!cb|'</script><script type=text/javascript crossorigin=anonymous src=//s3.pstatp.com/toutiao/static/js/vendor.561720e91f5a0e0a3043.js></script><script type=text/javascript crossorigin=anonymous src=//s3.pstatp.com/toutiao/static/js/page/index_node/index.be6fe966c0fc186b263c.js></script><script type=text/javascript crossorigin=anonymous src=//s3b.pstatp.com/toutiao/static/js/ttstatistics.6a0a43d169ee2b10172e.js></script><style>a[href^='http://www.cnzz.com/stat'] {
+      display: none!important;
+  }</style><script src="//s95.cnzz.com/z_stat.php?id=1259612802&web_id=1259612802" language=JavaScript></script><script>if (window.ttAnalysis) {
+    ttAnalysis.setup({
+      c: 'detail_gallery'
+    });
+    ttAnalysis.send('pageview', {});
+  }</script><script>document.getElementsByTagName('body')[0].addEventListener('click', function(e) {
+    var target = e.target,
+        ga_event,
+        ga_category,
+        ga_label,
+        ga_value;
+    while(target && target.nodeName.toUpperCase() !== 'BODY') {
+      ga_event = target.getAttribute('ga_event');
+      ga_category = target.getAttribute('ga_category') || 'detail_gallery';
+      ga_label = target.getAttribute('ga_label') || '';
+      ga_value = target.getAttribute('ga_value') || 1;
+      ga_event && window._czc && _czc.push(?["_trackEvent", ga_category, ga_event, ga_label, ga_value]);
+      ga_event && window.ttAnalysis && ttAnalysis.send('event', { ev: ga_event });
+      target = target.parentNode;
+    }
+});</script></body></html>
