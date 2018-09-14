@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> welcome to my html!</title>
+</head>
+<body>
+
+    <h1><a href="/edit_page/0/">撰写新的文章</a><br/></h1><br/>
+
+    {% for article in articles %}
+        <h3><a href="/article/{{ article.id}}">{{ article.name }}</a><br/></h3>
+    {% endfor %}
+</body>
+</html>
