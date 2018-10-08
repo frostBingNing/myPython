@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+{% block title %} 教学机构详情 {% endblock %}
+{% block custom_bread %}
+<section>
+    <div class="wp">
+        <ul  class="crumbs">
+            <li><a href="{% url 'index' %}">首页</a>></li>
+            <li>课程机构</li>
+        </ul>
+    </div>
+</section>
+{% endblock %}
+
+{% block custom_content %}
+<section>
+	<div class="wp butler_list_box list">
+	<div class='left'>
+		<div class="listoptions">
+			<ul>
+				<li>
+					<h2>机构类别</h2>
+					<div class="cont">
+                        <a href="?ct=&city={{ city_id }}"><span {% ifequal company_type "" %}class="active2"{% endifequal %}>全部</span></a>
+
+                            <a href="?ct=pxjg&city={{ city_id }}"><span {% ifequal company_type "pxjg" %}class="active2"{% endifequal %}>培训机构</span></a>
+
+                            <a href="?ct=gx&city={{ city_id}}"><span {% ifequal company_type "gx" %}class="active2"{% endifequal %}>高校</span></a>
+
+                            <a href="?ct=gr&city={{ city_id }}"><span {% ifequal company_type "gr" %}class="active2"{% endifequal %}>个人</span></a>
+
+					</div>
+				</li>
+				<li>
+					<h2>所在地区</h2>
+					<div class="more">更多</div>
+					<div class="cont">
+                        <a href="?ct={{ company_type }}&city="><span {% ifequal city_id "" %}class="active2"{% endifequal %}>全部</span></a>
+                                {% for city in all_city %}
+                                    <a href="?ct={{ company_type }}&city={{ city.id }}"><span {% ifequal city_id city.id|stringformat:"i" %}class="active2"{% endifequal %}>{{  city.name }}</span></a>
+                                {% endfor %}
+					</div>
+				</li>
+			</ul>
+		</div>
+		<div class="all">共<span class="key">{{ count }}</span>家</div>
+		<div class="butler_list company list">
+		<div class="layout">
+			<div class="head">
+				<ul class="tab_header">
+					<li {% ifequal sort '' %}class="active"{% endifequal %}><a href="?sort=&ct={{ company_type }}&city={{ city_id }}">全部</a> </li>
+					<li {% ifequal sort 'students' %}class="active"{% endifequal %}><a href="?sort=students&ct={{ company_type }}&city={{ city_id }}">学习人数 &#8595;</a></li>
+					<li {% ifequal sort 'courses' %}class="active"{% endifequal %}><a href="?sort=courses&ct={{ company_type }}&city={{ city_id }}">课程数 &#8595;</a></li>
+				</ul>
+			</div>
+
+            {% for org in whole_orgs.object_list %}
+                    <dl class="des difdes">
+                    <dt>
+                        <a href="{% url 'org:org_home' org.id %}">
+                            <img width="200" height="120" class="scrollLoading" data-url="{{ MEDIA_URL }}{{ org.image }}" />
+                        </a>
+                    </dt>
+                    <dd>
+                        <div class="clearfix">
+                             <a href="org-detail-homepage.html">
+{#                                 <h1>{{  org.name }}</h1>#}
+                                 <h1>{{ org.name }}</h1>
+                                 <div class="pic fl">
+
+                                         <img src="/static/images/authentication.png"/>
+
+                                         <img src="/static/images/gold.png"/>
+
+                                 </div>
+                             </a>
+                        </div>
+                        <ul class="cont">
+                            <li class="first"><p class="pic9">课程数：<span>{{ org.courses }}</span></p><p class="c7">学习人数：<span>{{ org.students }}</span></p></li>
+                            <li class="c8" style="padding-left:18px;">{{org.address }}</li>
+{#                            <li class="pic10" style="padding-left:18px;">经典课程：#}
+{##}
+{#                                    <a href="/diary/19/">c语言基础入门</a>#}
+{##}
+{#                                    <a href="/diary/16/">数据库基础</a>#}
+{##}
+{#                            </li>#}
+                        </ul>
+                    </dd>
+{#                    <div class="buy start_groupbuy jsShowPerfect2"  data-id="22"><br/>联系<br/>服务</div>#}
+                </dl>
+            {% endfor %}
+		</div>
+
+		 <div class="pageturn">
+            <ul class="pagelist">
+                 {% if whole_orgs.has_previous %}
+                    <li class="long"><a href="?{{ whole_orgs.previous_page_number.querystring }}">上一页</a></li>
+                 {% endif %}
+
+                 {% for page in whole_orgs.pages %}
+                    {% if page %}
+                        {% ifequal page whole_orgs.number %}
+                            <li class="active"><a href="?{{ page.querystring }}">{{ page }}</a></li>
+                        {% else %}
+                           <li><a href="?{{ page.querystring }}" class="page">{{ page }}</a></li>
+                        {% endifequal %}
+                    {% else %}
+                        <li class=None ><a href="">...</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if whole_orgs.has_next %}
+                     <li class="long"><a href="?{{ whole_orgs.next_page_number.querystring }}">下一页</a></li>
+                {% endif %}
+
+            </ul>
+        </div>
+
+		</div>
+	</div>
+	<div class="right companyright">
+			<div class="head">我要学习</div>
+			<form class="rightform" id="jsStayForm">
+                {% csrf_token %}
+				<div>
+                    <img src="/static/images/rightform1.png"/>
+                    <input type="text" name="name" id="companyName" placeholder="名字" maxlength="25" />
+                </div>
+				<div>
+                    <img src="/static/images/rightform2.png"/>
+                    <input type="text" name="mobile" id="companyMobile" placeholder="联系电话"/>
+                </div>
+				<div>
+                    <img src="/static/images/rightform3.png"/>
+                    <input type="text" name="course_name" id="companyAddress" placeholder="课程名" maxlength="50" />
+                </div>
+                <p class="error company-tips" id="jsCompanyTips"></p>
+				<input class="btn" type="button" id="jsStayBtn" value="立即咨询 >" />
+{#            <input type='hidden' name='csrfmiddlewaretoken' value='5I2SlleZJOMUX9QbwYLUIAOshdrdpRcy' />#}
+            </form>
+		</div>
+
+		<div class="right companyrank layout">
+			<div class="head">授课机构排名</div>
+                {% for i in order_org %}
+                <dl class="des">
+                    <dt class="num fl">{{ forloop.counter }}</dt>
+                    <dd>
+                        <a href="{{ MEDIA_URL }}{{ i.image }}"><h1>{{ i.name }}</h1></a>
+                        <p>{{ i.address }}</p>
+                    </dd>
+                </dl>
+                {% endfor %}
+		</div>
+        </div>
+</section>
+{% endblock %}
+
+{% block custom_js %}
+<script>
+    $(function(){
+        $('#jsStayBtn').on('click', function(){ // 监听按钮
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url:"{% url "org:add_ask" %}", // 传送数据的地址
+                data:$('#jsStayForm').serialize(), // 提交表单
+                async: true,
+                success: function(data) {
+                    if(data.status == 'success'){
+                        $('#jsStayForm')[0].reset();  // 之前填写的数据清空
+                        alert("信息添加成功")// ("信息添加成功")
+                    }else {
+                        {#console.log(data)#}
+                        $('#jsCompanyTips').html(data.msg)
+                    }
+                },
+            });
+        });
+    })
+
+</script>
+{% endblock %}
+
+{% block header %}
+<section class="headerwrap ">
+    <header>
+		<div  class=" header">
+ 			 {% if request.user.is_authenticated %}
+ 			    <div class="top">
+				<div class="wp">
+					<div class="fl"><p>服务电话：<b>2465792408@qq.com</b></p></div>
+						<div class="personal">
+                            <dl class="user fr">
+                                <dd>{{ user.username }}<img class="down fr" src="/static/images/top_down.png"/></dd>
+                                <dt><img width="20" height="20" src="/static/media/image/2016/12/default_big_14.png"/></dt>
+                            </dl>
+                            <div class="userdetail">
+                            	<dl>
+	                                <dt><img width="80" height="80" src="/static/media/image/2016/12/default_big_14.png"/></dt>
+	                                <dd>
+	                                    <h2>{{ user.username }}</h2>
+	                                    <p>BingNing</p>
+	                                </dd>
+                                </dl>
+                                <div class="btn">
+	                                <a class="personcenter fl" href="{% url 'users:center_information' %}">进入个人中心</a>
+	                                <a class="fr" href="{%  url 'logout' %}">退出</a>
+                                </div>
+                            </div>
+                        </div>
+				</div>
+			</div>
+            {% else %}
+                <div class="top">
+				<div class="wp">
+					<div class="fl"><p>服务电话：<b>2465792408@qq.com</b></p></div>
+					<!--登录后跳转-->
+                        <a style="color:white" class="fr registerbtn" href="{% url 'register' %}">注册</a>
+                        <a style="color:white" class="fr loginbtn" href="{% url 'login' %}">登录</a>
+                </div>
+			</div>
+            {% endif %}
+
+            <div class="middle">
+                <div class="wp">
+                    <a href="index.html"><img class="fl" src="/static/images/logo.jpg"/></a>
+                    <div class="searchbox fr">
+                        <div class="selectContainer fl">
+                            <span class="selectOption" id="jsSelectOption" data-value="course">
+                                公开课
+                            </span>
+                            <ul class="selectMenu" id="jsSelectMenu">
+                                <li data-value="course">公开课</li>
+                                <li data-value="org">课程机构</li>
+                                <li data-value="teacher">授课老师</li>
+                            </ul>
+                        </div>
+                        <input id="search_keywords" class="fl" type="text" value="" placeholder="请输入搜索内容"/>
+                        <img class="search_btn fr" id="jsSearchBtn" src="/static/images/search_btn.png"/>
+                    </div>
+                </div>
+            </div>
+
+
+			<nav>
+				<div class="nav">
+					<div class="wp">
+						<ul>
+							<li ><a href="{% url 'index' %}">首页</a></li>
+							<li >
+								<a href="{% url 'course:course_list' %}">
+									公开课<img class="hot" src="/static/images/nav_hot.png">
+								</a>
+							</li>
+							<li >
+								<a href="{% url 'org:teacher_list' %}">授课教师</a>
+							</li>
+							<li class="active"><a href="{% url 'org:org_list' %}">授课机构</a></li>
+						</ul>
+					</div>
+				</div>
+			</nav>
+
+        </div>
+    </header>
+</section>
+{% endblock %}
