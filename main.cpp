@@ -1,0 +1,122 @@
+#include <stdio.h>
+#include <iostream>
+#include <Winsock2.h>
+#include <string.h>
+#include <thread>
+using namespace std;
+
+typedef struct Sockets {
+    SOCKET the_socket;   // socket
+}message;
+
+//使用线程来管理每一个请求
+DWORD WINAPI receive(const LPVOID arg) {
+
+    message *temp = (message *) arg;
+    char recvBuf[MAXBYTE];
+    // 让每一个线程来监听接受操作
+    while(1)
+    {
+//        memset(recvBuf, MAXBYTE, sizeof(char));
+        int flag = -1;
+        flag = recv(temp->the_socket,recvBuf,MAXBYTE,0);
+        if (flag > 0)
+        {
+            cout<<recvBuf<<endl;
+        }
+        memset(recvBuf, MAXBYTE, sizeof(char));
+    }
+
+    return 0;
+}
+
+
+
+int main()
+{
+    WORD wVersionRequested;
+    WSADATA wsaData;
+    int err;
+
+    wVersionRequested = MAKEWORD( 1, 1 );
+
+    err = WSAStartup( wVersionRequested, &wsaData );
+    if ( err != 0 ) {
+        return 0;
+    }
+    if ( LOBYTE( wsaData.wVersion ) != 1 || HIBYTE( wsaData.wVersion ) != 1 ) {
+        WSACleanup( );
+        return 0;
+    }
+    SOCKET sockClient=socket(AF_INET,SOCK_STREAM,0);
+
+    SOCKADDR_IN addrSrv;
+    addrSrv.sin_addr.S_un.S_addr=inet_addr("127.0.0.1");
+    addrSrv.sin_family=AF_INET;
+    addrSrv.sin_port=htons(6000);
+
+    connect(sockClient,(SOCKADDR*)&addrSrv,sizeof(SOCKADDR));
+    // 上面定义的应该是-- 创建客户端的socket
+    // 首先是弹出来 欢迎的消息 ---- 提示当前用户已经进入聊天室
+    char recvBuf[50];
+    recv(sockClient,recvBuf,50,0);
+    printf("%s\n",recvBuf);
+
+    // 建立socket结构体
+    message *temp = new message;
+    temp->the_socket = sockClient;
+    // 因为下面这个线程负责接受消息
+    CreateThread(NULL,0,&receive,temp,0,NULL);
+
+    //在这里让用户选择进行单聊还是群聊
+    while(1)
+    {
+        // 只要当前用户没有退出连接，那么就可以自由选择聊天模式
+        // 默认是多来哦
+        cout<<"使用说明：您可以使用'S'启用单聊，'Q'退出，其他任意字符，进入多聊"<<endl;
+        char choice[10] = "";
+        cin.getline(choice,10);
+
+        if(strcmp(choice,"Q") == 0)
+        {
+            break;
+        } else if(strcmp(choice,"S") == 0) // 在这里选择'S'进入单聊模式
+        {
+            send(sockClient,choice,strlen(choice)+1,0); // 请求当前可以聊天的端口号
+            cout<<"'port message'形式发送消息"<<endl;     //  提示用户的输入格式
+            // 需要服务器那里跟进一个所有端口号的信息，供用户选择
+            while(1)
+            {
+                // 发送消息循环体
+                char message[MAXBYTE] = "";
+                cin.getline(message,MAXBYTE);
+                //因为没有UI界面，所以这里采用quit 代表当前用户退出
+                if(strcmp(message,"quit") == 0 || strcmp(message,"QUIT") == 0)
+                {
+                    break;
+                }
+                send(sockClient,message,strlen(message)+1,0);
+            }
+        }
+        else {
+            cout<<"可以进行多聊啦"<<endl;
+            while(1)
+            {
+                char message[MAXBYTE] = "";
+                cin.getline(message,MAXBYTE);
+                //因为没有UI界面，所以这里采用quit 代表当前用户退出
+                if(strcmp(message,"quit") == 0 || strcmp(message,"QUIT") == 0)
+                {
+//                    cout<<strcmp(message,"quit")<<strcmp(message,"QUIT")<<endl;
+                    break;
+                }
+                send(sockClient,message,strlen(message)+1,0);
+            }
+        }
+
+    }
+
+    closesocket(sockClient);
+    WSACleanup();
+
+}
