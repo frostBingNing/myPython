@@ -1,0 +1,231 @@
+#include <stdio.h>
+#include <Winsock2.h>
+#include <thread>
+#include <Windows.h>
+#include <process.h>
+#include <iostream>
+#include <string.h>
+#include <list>
+#include <unistd.h>
+#include "getCurrentTime.cpp"
+
+using namespace std;
+
+typedef struct message{
+    SOCKET the_socket;   // socket
+    SOCKADDR_IN message; // address
+}Message;
+
+int num =0;             //统计当前人数
+char singleMessage[100];
+list<SOCKET> whole_user; // 用来保存数据的列表
+list<int> all_port;  //没有必要进行这个设置
+// 测试一下可以创建Message列表
+list<Message> whole_message;
+
+
+
+//使用线程来管理每一个请求
+DWORD WINAPI transmmit(const LPVOID arg) {
+
+    Message *temp = (Message *) arg;
+    int flag = -1; // 默认标志位采用 -1  也就是接受失败的情况
+    char Port[200] = {0} ;
+    // 该线程负责接收消息
+    // 下面根据
+    while(1)
+    {
+        char Buffer[MAXBYTE] = {0}; //缓冲区
+        flag = -1;
+        memset(Buffer, MAXBYTE, sizeof(char));
+        flag = recv(temp->the_socket, Buffer, MAXBYTE, 0); //recv方法 从客户端通过clientScocket接收
+        // 首先判断消息Buffer里面前面几个字符某个端口号
+        // 现在分配的端口肯定是数字
+//        cout<<Buffer<<endl;  正确的
+        char *s = Buffer;
+        int temp_port =0 ;
+        int i ;
+        for(i =0 ; i< strlen(Buffer) ; i++)
+        {
+            if(s[i] != ' ')
+            {
+                temp_port = 10 * temp_port + (s[i] - '0');
+            }else{
+                i++;
+                break;
+            }
+        }
+        // 把剩余的消息获取下来
+        char tail_message[100] = {""};
+//        memset(tail_message,50, sizeof(char)); //重置缓冲区
+        for(int j =0;i<strlen(Buffer);i++,j++)
+        {
+            tail_message[j] = Buffer[i];
+        }
+        cout<<tail_message<<endl;
+        // 判断当前端口是否存在 存在那么就是单聊
+        int flag_too = -1;
+        list<int>::iterator special;
+        for(special = all_port.begin(); special != all_port.end() ; special++)
+        {
+            if(*special == temp_port )
+            {
+                flag_too = 1;
+                break;
+            }
+        }
+
+//        cout<<flag_too<<endl;
+//        cout<<all_port.size()<<endl;
+        // flag > 0 并且处于多聊（群聊）状态
+        if(flag  > 0 &&  strcmp(Buffer,"S") != 0 && flag_too == -1 ) {
+            // 如果当前的消息是 quit 区分大小写
+            // 在群聊的时候，可以像用户返回数量
+            if(strcmp(Buffer,"quit") == 0 || strcmp(Buffer,"QUIT") == 0)
+            {
+                closesocket(temp->the_socket);
+                whole_user.remove(temp->the_socket);
+//                whole_message.remove();  // 将断开连接的用户移除
+                all_port.remove( ntohs(temp->message.sin_port));         //将当前的端口移除
+                num--; //用户数量减一
+            }
+            cout << ntohs(temp->message.sin_port) << "号端口发送过来数据为:" << Buffer << endl;
+            // 然后将消息广播出去
+            if(whole_user.size() == 1)
+            {
+                char user_count[100] = "很抱歉，当前聊天室只有你一个人\n";
+                send(temp->the_socket,user_count,strlen(user_count)+1 , 0);
+            }else{
+                // 用户数量大于二，才转发出去
+                list<SOCKET>::iterator iter;
+//                list<Message>::iterator message;
+                for(iter = whole_user.begin(); iter!= whole_user.end() ; iter++)
+                {
+                    // 只把当前的消息发送给出自己之外的每个人
+                    sprintf(Port,"%d :" , ntohs(temp->message.sin_port));
+                    strcat(Port,Buffer);
+                    // 在这条消息的后面添加时间
+                    SYSTEMTIME sys = {0};GetLocalTime(&sys);
+                    char year[100] ;
+                    sprintf(year,"%d年%d月%d号 %d:%d:%02d\n",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond);
+                    strcat(year,Port);
+                    if( temp->the_socket != *iter)
+                    {
+                        send(*iter,year,strlen(year)+1 , 0);
+                    }
+                }
+            }
+
+        }
+        // 当前用户选择了 S -- 也就是单聊  --- 这里只是返回所有的端口信息
+        // 端口信息的处理是正确的
+        else if(strcmp(Buffer,"S") == 0 && flag_too == -1){
+            cout<< "用户选择了单聊"<<endl;
+            // 将断口号返回给用户
+            char allPort[500]= "";
+            char thePort[100];
+            list<int>::iterator Ports;
+            int one_port;
+            for(Ports = all_port.begin(); Ports!= all_port.end() ; Ports++)
+            {
+                one_port = *Ports;
+                sprintf(thePort,"%d 、",one_port);
+                strcat(allPort,thePort);
+            }
+            send(temp->the_socket,allPort,strlen(allPort)+1 , 0);
+
+        }
+        else if(flag == -1)
+        {
+            // 代表某刻用户x主动断开连接
+            // 首先在服务器那一端提示信息
+            whole_user.remove(temp->the_socket);
+            all_port.remove( ntohs(temp->message.sin_port));
+            cout<<"用户" << ntohs(temp->message.sin_port) << "离开了当期聊天室" <<endl;
+            cout<<"当前人数"<< whole_user.size() << "人" <<endl;
+            break;
+        }else if(flag_too == 1)
+        {
+            cout << ntohs(temp->message.sin_port) << "号端口私聊数据为:" << tail_message << endl;
+            // 那么下面就是进行的单聊
+            // 按照端口找到socket
+            SOCKET target;
+            list<Message>::iterator port_socket;
+            for(port_socket = whole_message.begin(); port_socket!= whole_message.end() ; port_socket++)
+            {
+                if(ntohs(port_socket->message.sin_port) == temp_port)
+                {
+                    target = port_socket->the_socket;
+                    break;
+                }
+            }
+            sprintf(singleMessage,"%d对您私聊 :" ,ntohs(temp->message.sin_port));
+            strcat(singleMessage,tail_message);
+            // 在这条消息的后面添加时间
+            cout<<singleMessage<<endl;
+            SYSTEMTIME sys = {0};GetLocalTime(&sys);
+            char year[200] ;
+            sprintf(year,"%d年%d月%d号 %d:%d:%02d\n",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond);
+            strcat(year,singleMessage);
+            send(target,year,strlen(year)+1 , 0);
+        }
+        // 如果当前的数值小于零  那么应该就是断开了连接
+    }
+    return 0;
+}
+
+int main()
+{
+    // init
+    WORD wVersionRequested;
+    WSADATA wsaData;
+    int err;
+    // bind the version
+    wVersionRequested = MAKEWORD( 1, 1 );
+    err = WSAStartup( wVersionRequested, &wsaData );
+    if ( err != 0 ) {
+        return 0;
+    }
+
+    if ( LOBYTE( wsaData.wVersion ) != 1 || HIBYTE( wsaData.wVersion ) != 1 ) {
+        WSACleanup( );
+        return 0;
+    }
+    SOCKET sockSrv=socket(AF_INET,SOCK_STREAM,0);
+
+    SOCKADDR_IN addrSrv;
+    addrSrv.sin_addr.S_un.S_addr=htonl(INADDR_ANY);
+    addrSrv.sin_family=AF_INET;
+    addrSrv.sin_port=htons(6000);
+
+    bind(sockSrv,(SOCKADDR*)&addrSrv,sizeof(SOCKADDR));
+
+    listen(sockSrv,3);
+    // 因为这里限制了最大的数量 ，所以可以测试一下峰值
+
+    SOCKADDR_IN addrClient;
+    int len=sizeof(SOCKADDR);
+
+    cout << "  服务器已启动！ " << endl;
+    while(1) {
+        if(num<3) {
+            Message *temp = new Message;
+            SOCKET sockConn = accept(sockSrv, (SOCKADDR *) &addrClient, &len);
+//        cout << sockConn << endl;
+//            cout << sockConn << endl;
+            if (sockConn > 0) {
+                num++; // 成功接收连接请求，数量加一
+//                cout<<num<<endl;
+                temp->the_socket = sockConn;
+                temp->message = addrClient;
+                whole_user.push_back(sockConn);  // 复杂一点
+                whole_message.push_back(*temp);
+                all_port.push_back( ntohs(addrClient.sin_port)); // 所有端口
+                CreateThread(NULL, 0, &transmmit, temp, 0, NULL);
+                char sendBuf[50];
+                sprintf(sendBuf, "Welcome %d to here!", ntohs(addrClient.sin_port));
+                send(sockConn, sendBuf, strlen(sendBuf) + 1, 0);
+            }
+        }
+    }
+}
